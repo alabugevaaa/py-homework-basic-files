@@ -4,7 +4,7 @@ import requests
 API_KEY = 'trnsl.1.1.20190712T081241Z.0309348472c8719d.0efdbc7ba1c507292080e3fbffe4427f7ce9a9f0'
 URL = 'https://translate.yandex.net/api/v1.5/tr.json/translate'
 
-def translate_it(text, to_lang):
+def translate_it(file_input, file_output, from_lang, to_lang='ru'):
     """
     https://translate.yandex.net/api/v1.5/tr.json/translate ?
     key=<API-ключ>
@@ -16,19 +16,38 @@ def translate_it(text, to_lang):
     :param to_lang:
     :return:
     """
+    if file_input == '':
+        return 'Не указан путь к файлу с текcтом'
+    if file_output == '':
+        return 'Не указан путь к файлу с результатом'
+    if from_lang != '':
+        from_lang += '-'
+    if to_lang == '':
+        to_lang = 'ru'
+    try:
+        with open(file_input, 'r', encoding='utf-8-sig') as f:
+            text = f.read()
+    except FileNotFoundError:
+        return f'Файл {file_input} не существует'
 
     params = {
         'key': API_KEY,
         'text': text,
-        'lang': 'ru-{}'.format(to_lang),
+        'lang': '{}{}'.format(from_lang,to_lang),
     }
 
     response = requests.get(URL, params=params)
     json_ = response.json()
+    with open(file_output, 'w', encoding='utf-8') as f:
+        f.write(''.join(json_['text']))
     return ''.join(json_['text'])
 
 
 # print(translate_it('В настоящее время доступна единственная опция — признак включения в ответ автоматически определенного языка переводимого текста. Этому соответствует значение 1 этого параметра.', 'no'))
 
 if __name__ == '__main__':
-    print(translate_it('привет', 'en'))
+    file_input = input('Путь к файлу с текcтом: ')
+    file_output = input('Путь к файлу с результатом: ')
+    from_lang = input('Язык с которого перевести: ')
+    to_lang = input('Язык на который перевести (по-умолчанию русский): ')
+    print(translate_it(file_input, file_output, from_lang, to_lang))
