@@ -4,6 +4,9 @@ import requests
 API_KEY = 'trnsl.1.1.20190712T081241Z.0309348472c8719d.0efdbc7ba1c507292080e3fbffe4427f7ce9a9f0'
 URL = 'https://translate.yandex.net/api/v1.5/tr.json/translate'
 
+OAUTH_TOKEN = 'AgAAAAASXc43AADLW5CQG0is7E_PuGpLEtsk7Xg'
+URL_YANDEX = 'https://cloud-api.yandex.net/v1/disk/resources/upload'
+
 def translate_it(file_input, file_output, from_lang, to_lang='ru'):
     """
     https://translate.yandex.net/api/v1.5/tr.json/translate ?
@@ -24,6 +27,7 @@ def translate_it(file_input, file_output, from_lang, to_lang='ru'):
         from_lang += '-'
     if to_lang == '':
         to_lang = 'ru'
+
     try:
         with open(file_input, 'r', encoding='utf-8-sig') as f:
             text = f.read()
@@ -38,9 +42,28 @@ def translate_it(file_input, file_output, from_lang, to_lang='ru'):
 
     response = requests.get(URL, params=params)
     json_ = response.json()
-    with open(file_output, 'w', encoding='utf-8') as f:
-        f.write(''.join(json_['text']))
-    return ''.join(json_['text'])
+    if response.status_code == 200:
+        with open(file_output, 'w', encoding='utf-8') as f:
+            f.write(''.join(json_['text']))
+        print(''.join(json_['text']))
+    else:
+        return json_
+
+
+    # Загрузка на Яндекс.Диск
+    params_yandex = {
+        'path': f'app:/{file_output}',
+        'overwrite': True,
+    }
+
+    resp_yandex_url = requests.get(URL_YANDEX, headers={'Authorization': 'OAuth' + OAUTH_TOKEN}, params=params_yandex)
+    resp_yandex_json = resp_yandex_url.json()
+    if resp_yandex_url.status_code == 200:
+        response_yandex = requests.put(resp_yandex_json['href'], file_output)
+
+        return f'Статус загрузки на Яндекс.Диск: {response_yandex.reason}'
+    else:
+        return f'Не удалось получить url для загрузки: {resp_yandex_json}'
 
 
 # print(translate_it('В настоящее время доступна единственная опция — признак включения в ответ автоматически определенного языка переводимого текста. Этому соответствует значение 1 этого параметра.', 'no'))
