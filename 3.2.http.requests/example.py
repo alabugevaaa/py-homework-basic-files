@@ -56,7 +56,7 @@ def translate_it(file_input, file_output, from_lang, to_lang='ru'):
         'overwrite': True,
     }
 
-    resp_yandex_url = requests.get(URL_YANDEX, headers={'Authorization': 'OAuth' + OAUTH_TOKEN}, params=params_yandex)
+    resp_yandex_url = requests.get(URL_YANDEX, headers={'Authorization': 'OAuth ' + OAUTH_TOKEN}, params=params_yandex)
     resp_yandex_json = resp_yandex_url.json()
     if resp_yandex_url.status_code == 200:
         response_yandex = requests.put(resp_yandex_json['href'], file_output)
