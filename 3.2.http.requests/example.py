@@ -1,10 +1,11 @@
+import os
 import requests
 #  документация https://yandex.ru/dev/translate/doc/dg/reference/translate-docpage/
 
-API_KEY = 'trnsl.1.1.20190712T081241Z.0309348472c8719d.0efdbc7ba1c507292080e3fbffe4427f7ce9a9f0'
+API_KEY = os.getenv('API_KEY')
 URL = 'https://translate.yandex.net/api/v1.5/tr.json/translate'
 
-OAUTH_TOKEN = 'AgAAAAASXc43AADLW5CQG0is7E_PuGpLEtsk7Xg'
+OAUTH_TOKEN = os.getenv('OAUTH_TOKEN')
 URL_YANDEX = 'https://cloud-api.yandex.net/v1/disk/resources/upload'
 
 def translate_it(file_input, file_output, from_lang, to_lang='ru'):
